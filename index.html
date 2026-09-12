@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Interactive live demo of a real-time IoT data engineering pipeline with validation, anomaly detection, dead-letter handling and live monitoring." />
+  <title>Real-Time Data Engineering Pipeline | Live Demo</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
+
+  <main class="shell">
+    <nav class="topbar">
+      <div class="brand">
+        <span class="brand-mark">RT</span>
+        <div>
+          <strong>Real-Time Pipeline</strong>
+          <span>Portfolio Project</span>
+        </div>
+      </div>
+      <div class="nav-meta">
+        <span class="live-dot"></span>
+        <span>GitHub Pages demo</span>
+        <a href="#architecture">Architecture</a>
+      </div>
+    </nav>
+
+    <header class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">LIVE PORTFOLIO DEMO · NO LOGIN REQUIRED</p>
+        <h1>Real-Time Data Engineering Pipeline</h1>
+        <p class="lead">A smart-building IoT simulation showing event ingestion, schema validation, transformation, anomaly detection, dead-letter handling and live operational monitoring.</p>
+        <div class="stack" aria-label="Project technology stack">
+          <span>Python</span><span>FastAPI</span><span>PostgreSQL</span><span>MQTT</span><span>Docker</span><span>Chart.js</span>
+        </div>
+      </div>
+      <aside class="demo-card">
+        <div class="demo-card-head">
+          <div>
+            <span class="mini-label">DEMO STATUS</span>
+            <strong id="demoStatus">Ready</strong>
+          </div>
+          <span id="statusPill" class="status-pill paused">PAUSED</span>
+        </div>
+        <p>Start the stream, then inject an anomaly and watch it travel through the pipeline.</p>
+        <div class="controls">
+          <button id="startBtn" class="primary"><span>▶</span> Start Simulation</button>
+          <button id="pauseBtn" class="secondary"><span>Ⅱ</span> Pause</button>
+          <button id="anomalyBtn" class="danger"><span>⚡</span> Inject Anomaly</button>
+          <button id="invalidBtn" class="warning"><span>!</span> Inject Invalid Event</button>
+          <button id="resetBtn" class="ghost"><span>↻</span> Reset Demo</button>
+        </div>
+      </aside>
+    </header>
+
+    <section class="pipeline-strip" aria-label="Pipeline stages">
+      <div class="stage"><span class="stage-icon">01</span><div><strong>Simulator</strong><small>10 virtual rooms</small></div></div>
+      <span class="arrow">→</span>
+      <div class="stage"><span class="stage-icon">02</span><div><strong>Validation</strong><small>Schema & quality checks</small></div></div>
+      <span class="arrow">→</span>
+      <div class="stage"><span class="stage-icon">03</span><div><strong>Transform</strong><small>Normalize event data</small></div></div>
+      <span class="arrow">→</span>
+      <div class="stage"><span class="stage-icon">04</span><div><strong>Storage</strong><small>Reading persistence</small></div></div>
+      <span class="arrow">→</span>
+      <div class="stage"><span class="stage-icon">05</span><div><strong>Detection</strong><small>Rules + rolling statistics</small></div></div>
+      <span class="arrow">→</span>
+      <div class="stage"><span class="stage-icon">06</span><div><strong>Dashboard</strong><small>Live observability</small></div></div>
+    </section>
+
+    <section class="metrics" aria-label="Pipeline metrics">
+      <article class="metric"><div class="metric-icon">▦</div><div><span>Active Devices</span><strong id="activeDevices">10</strong><small>of 10 registered</small></div></article>
+      <article class="metric"><div class="metric-icon">↯</div><div><span>Events Processed</span><strong id="eventsStored">0</strong><small id="eventsRate">0 events/min</small></div></article>
+      <article class="metric"><div class="metric-icon alert">!</div><div><span>Active Alerts</span><strong id="activeAlerts">0</strong><small id="alertSubtext">No anomalies</small></div></article>
+      <article class="metric"><div class="metric-icon">✓</div><div><span>Pipeline Health</span><strong id="pipelineHealth">PAUSED</strong><small id="healthSubtext">Demo ready</small></div></article>
+      <article class="metric"><div class="metric-icon warning">×</div><div><span>Dead-Letter Events</span><strong id="invalidEvents">0</strong><small>Rejected safely</small></div></article>
+      <article class="metric"><div class="metric-icon">◷</div><div><span>Data Freshness</span><strong id="freshness">—</strong><small>latest accepted event</small></div></article>
+    </section>
+
+    <section class="grid charts-grid">
+      <article class="panel chart-panel">
+        <div class="panel-title">
+          <div><span class="kicker">STREAM</span><h2>Temperature</h2></div>
+          <span class="legend-chip">°C</span>
+        </div>
+        <div class="chart-wrap"><canvas id="tempChart"></canvas></div>
+      </article>
+      <article class="panel chart-panel">
+        <div class="panel-title">
+          <div><span class="kicker">STREAM</span><h2>Energy Usage</h2></div>
+          <span class="legend-chip">kW</span>
+        </div>
+        <div class="chart-wrap"><canvas id="energyChart"></canvas></div>
+      </article>
+      <article class="panel chart-panel">
+        <div class="panel-title">
+          <div><span class="kicker">THROUGHPUT</span><h2>Events per 10 seconds</h2></div>
+          <span class="legend-chip">EPS</span>
+        </div>
+        <div class="chart-wrap"><canvas id="throughputChart"></canvas></div>
+      </article>
+    </section>
+
+    <section class="grid operations-grid">
+      <article class="panel devices-panel">
+        <div class="panel-title">
+          <div><span class="kicker">DEVICE FLEET</span><h2>Smart Building Rooms</h2></div>
+          <span id="roomStatusText" class="muted">10 online</span>
+        </div>
+        <div id="rooms" class="room-grid"></div>
+      </article>
+
+      <article class="panel event-panel">
+        <div class="panel-title">
+          <div><span class="kicker">INGESTION</span><h2>Live Event Stream</h2></div>
+          <span id="streamBadge" class="stream-badge">WAITING</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Device</th><th>Temp</th><th>Humidity</th><th>Energy</th><th>Status</th></tr></thead>
+            <tbody id="eventTable"></tbody>
+          </table>
+        </div>
+      </article>
+    </section>
+
+    <section class="grid feed-grid">
+      <article class="panel">
+        <div class="panel-title">
+          <div><span class="kicker">ANOMALY DETECTION</span><h2>Live Alert Feed</h2></div>
+          <span id="alertCount" class="muted">0 alerts</span>
+        </div>
+        <div id="alerts" class="feed empty-state">
+          <div class="empty-icon">⚡</div>
+          <strong>No anomalies detected</strong>
+          <span>Use “Inject Anomaly” to test the detection path.</span>
+        </div>
+      </article>
+      <article class="panel">
+        <div class="panel-title">
+          <div><span class="kicker">DATA QUALITY</span><h2>Dead-Letter Queue</h2></div>
+          <span id="deadCount" class="muted">0 rejected</span>
+        </div>
+        <div id="deadLetters" class="feed empty-state">
+          <div class="empty-icon">⌁</div>
+          <strong>No rejected events</strong>
+          <span>Invalid payloads are isolated instead of crashing the pipeline.</span>
+        </div>
+      </article>
+      <article class="panel">
+        <div class="panel-title">
+          <div><span class="kicker">OBSERVABILITY</span><h2>Pipeline Activity</h2></div>
+          <span class="muted">latest 10</span>
+        </div>
+        <div id="activity" class="activity-list"></div>
+      </article>
+    </section>
+
+    <section id="architecture" class="architecture panel">
+      <div class="architecture-copy">
+        <span class="kicker">PRODUCTION ARCHITECTURE</span>
+        <h2>How the browser demo maps to the full engineering project</h2>
+        <p>This GitHub Pages version runs the simulation and visualisation in the browser so recruiters can test it instantly. The repository also contains the FastAPI backend, validation models, database layer and automated tests used for the server-side implementation.</p>
+        <div class="architecture-note"><strong>Live demo:</strong> client-side simulation for zero-login public access. <strong>Repository:</strong> Python/FastAPI/PostgreSQL-oriented backend evidence.</div>
+      </div>
+      <div class="architecture-flow">
+        <div>IoT Simulator</div><span>→</span><div>HTTP / MQTT</div><span>→</span><div>Validation</div><span>→</span><div>Worker</div><span>→</span><div>PostgreSQL</div><span>→</span><div>FastAPI</div><span>→</span><div>Dashboard</div>
+      </div>
+    </section>
+
+    <section class="recruiter panel">
+      <div>
+        <span class="kicker">WHAT THIS PROJECT DEMONSTRATES</span>
+        <h2>Data engineering beyond a notebook</h2>
+      </div>
+      <div class="proof-grid">
+        <div><strong>Streaming mindset</strong><span>Continuous event generation and ingestion</span></div>
+        <div><strong>Data quality</strong><span>Validation and dead-letter isolation</span></div>
+        <div><strong>Observability</strong><span>Health, freshness, throughput and alerts</span></div>
+        <div><strong>Anomaly detection</strong><span>Threshold and rolling statistical checks</span></div>
+      </div>
+    </section>
+
+    <footer>
+      <span>Real-Time Data Engineering Pipeline · Portfolio Demo</span>
+      <span>Built for recruiter-friendly exploration</span>
+    </footer>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>

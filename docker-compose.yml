@@ -1,0 +1,27 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: realtime_pipeline
+      POSTGRES_USER: pipeline
+      POSTGRES_PASSWORD: pipeline
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  api:
+    image: python:3.12-slim
+    working_dir: /app
+    volumes:
+      - .:/app
+    command: sh -c "pip install --no-cache-dir -r requirements.txt && uvicorn backend.main:app --host 0.0.0.0 --port 8000"
+    environment:
+      DATABASE_URL: postgresql+psycopg://pipeline:pipeline@db:5432/realtime_pipeline
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
+volumes:
+  pgdata:
