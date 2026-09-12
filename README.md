@@ -1,118 +1,278 @@
 # Real-Time Data Engineering Pipeline
 
-A recruiter-friendly portfolio project that simulates smart-building / IoT sensor data and demonstrates ingestion, validation, data-quality handling, transformation, anomaly detection, alerting and live observability.
+A recruiter-facing portfolio project that demonstrates a complete smart-building data-engineering workflow: simulated IoT telemetry, schema validation, transformation, persistence, anomaly detection, dead-letter handling, MQTT ingestion, analytics and operational observability.
 
 ## Live demo
 
-The repository root is a **GitHub Pages-ready interactive demo**. No login or server is required for the basic recruiter experience.
+**GitHub Pages:** https://billalhossainshishir.github.io/real-time-data-engineering-pipeline/
+
+The public demo is intentionally lightweight and runs in the browser so a recruiter can test the project instantly without credentials, containers or backend wake-up time.
 
 Demo flow:
 
 1. Click **Start Simulation**.
 2. Watch 10 virtual rooms stream temperature, humidity and energy readings.
-3. Click **Inject Anomaly**.
-4. Watch the abnormal event pass validation, get stored and create an alert.
-5. Click **Inject Invalid Event** to see malformed data isolated in the dead-letter queue.
-6. Use **Pause** or **Reset Demo** at any time.
+3. Click **Inject Anomaly** and see an alert appear.
+4. Click **Inject Invalid Event** and see the malformed payload isolated in the dead-letter queue.
+5. Inspect throughput, freshness, device state and pipeline activity.
 
-> The public Pages demo runs its simulation in the browser for instant access. The Python/FastAPI backend implementation is also included in this repository as engineering evidence.
+> **Important:** the GitHub Pages demo is not connected to a hosted FastAPI/PostgreSQL/MQTT stack. The full backend implementation is included in this repository and can be run locally with Docker Compose.
 
-## Project stack
+## What is implemented
 
-- Python
-- FastAPI
-- SQLAlchemy
-- PostgreSQL-compatible data layer
-- Pydantic validation
-- JavaScript
-- Chart.js
-- Docker / Docker Compose
-- pytest
-- MQTT planned as the next server-side integration stage
+### Public recruiter demo
+
+- 10 stable `ROOM-01` to `ROOM-10` devices
+- continuous browser-based event generation
+- validation and dead-letter isolation
+- threshold and rolling statistical anomaly detection
+- live charts with Chart.js
+- device status, alerts, throughput and data freshness
+- start, pause, anomaly, invalid-event and reset controls
+
+### Engineering backend
+
+- FastAPI ingestion API
+- Pydantic event validation
+- SQLAlchemy persistence layer
+- PostgreSQL-compatible schema
+- real transformation stage with normalized timestamps and derived operational bands
+- dead-letter persistence for invalid HTTP and MQTT payloads
+- rule-based anomaly detection
+- rolling 3-sigma statistical detection
+- Isolation Forest multivariate anomaly detection
+- alert creation and pipeline event logging
+- analytics endpoints
+- MQTT / Mosquitto ingestion worker
+- MQTT sensor simulator
+- Docker Compose stack
+- automated pytest suite
+- GitHub Actions backend test workflow
+
+## Architecture
+
+### Public GitHub Pages demo
+
+```text
+Browser simulator
+      ↓
+JavaScript validation
+      ├── invalid → in-memory dead-letter queue
+      ↓
+Browser processing
+      ↓
+Rule + rolling statistical detection
+      ↓
+Chart.js dashboard
+```
+
+### Full engineering implementation
+
+```text
+MQTT sensor simulator
+        ↓
+Mosquitto broker
+        ↓
+Python MQTT worker
+        ↓
+Pydantic validation
+        ├── invalid → dead_letter_events
+        ↓
+Transformation / enrichment
+        ↓
+Rule → rolling 3σ → Isolation Forest
+        ↓
+PostgreSQL
+        ↓
+FastAPI analytics / monitoring API
+```
+
+See [docs/architecture.md](docs/architecture.md) for the detailed design.
 
 ## Repository structure
 
 ```text
 .
-├── index.html                 # GitHub Pages live demo
+├── index.html
 ├── assets/
 │   ├── css/style.css
 │   └── js/app.js
-├── backend/                   # FastAPI server-side implementation
-├── tests/                     # Backend API tests
-├── docs/architecture.md
-├── requirements.txt
+├── backend/
+│   ├── main.py
+│   ├── database.py
+│   ├── models.py
+│   ├── schemas.py
+│   ├── bootstrap.py
+│   ├── simulator.py
+│   └── services/
+│       ├── transformations.py
+│       ├── anomaly_detection.py
+│       └── ingestion.py
+├── worker/
+│   └── mqtt_consumer.py
+├── simulator/
+│   └── mqtt_simulator.py
+├── mosquitto/
+│   └── mosquitto.conf
+├── tests/
+├── docs/
+│   ├── architecture.md
+│   ├── api.md
+│   └── case-study.md
+├── Dockerfile
 ├── docker-compose.yml
-├── .env.example
-├── .nojekyll
-└── README.md
+├── requirements.txt
+└── .github/workflows/tests.yml
 ```
 
-## Publish with GitHub Pages
+## Event schema
 
-1. Create a GitHub repository, for example `real-time-data-engineering-pipeline`.
-2. Upload/push **all files in this folder to the repository root**.
-3. On GitHub open **Settings → Pages**.
-4. Under **Build and deployment**, choose **Deploy from a branch**.
-5. Select branch **main** and folder **/ (root)**.
-6. Save.
-7. After deployment, the site will be available at a URL in this format:
+```json
+{
+  "device_id": "ROOM-07",
+  "temperature": 22.8,
+  "humidity": 58.0,
+  "energy_usage": 2.1,
+  "timestamp": "2026-09-13T10:00:00Z"
+}
+```
+
+## Transformation stage
+
+Accepted events are transformed before persistence. The backend currently derives:
+
+- normalized UTC timestamp
+- `energy_watts`
+- `temperature_band`
+- `humidity_band`
+- `energy_band`
+- `comfort_status`
+
+This makes the Transformation stage a real processing step rather than only a diagram label.
+
+## Anomaly detection
+
+The backend applies detectors in this order:
+
+1. **Rule thresholds** — catches obvious operational failures such as `temperature > 35°C`, `humidity > 85%`, or `energy_usage > 7.5 kW`.
+2. **Rolling 3-sigma detection** — compares a new reading with recent per-device history after enough observations exist.
+3. **Isolation Forest** — evaluates temperature, humidity and energy together after a larger history window is available.
+
+The first detector that identifies an anomaly creates an alert and stores the method, reason and score where relevant.
+
+## Database tables
+
+- `devices`
+- `sensor_readings`
+- `alerts`
+- `pipeline_events`
+- `dead_letter_events`
+
+Sensor readings also store derived transformation fields, anomaly metadata and the ingestion source (`HTTP`, `MQTT` or `SIMULATOR`).
+
+## Run the full backend with Docker
+
+Requirements:
+
+- Docker Desktop / Docker Engine
+- Docker Compose
+
+Start the complete local stack:
+
+```bash
+docker compose up --build
+```
+
+This starts:
+
+- PostgreSQL
+- Mosquitto MQTT broker
+- FastAPI API
+- MQTT consumer worker
+- MQTT sensor simulator
+
+Open:
 
 ```text
-https://YOUR-GITHUB-USERNAME.github.io/real-time-data-engineering-pipeline/
+Dashboard / API root: http://localhost:8000
+Swagger API docs:     http://localhost:8000/docs
 ```
 
-If the repository itself is named `YOUR-GITHUB-USERNAME.github.io`, the site will instead be available directly at:
+The MQTT simulator publishes a new sensor event approximately every two seconds and injects a demo anomaly periodically. The worker validates, transforms, detects anomalies and writes accepted events to PostgreSQL.
 
-```text
-https://YOUR-GITHUB-USERNAME.github.io/
+Stop the stack:
+
+```bash
+docker compose down
 ```
 
-## Run the backend locally
+Remove the demo database volume as well:
 
-For the current backend dependencies, use **Python 3.13**.
+```bash
+docker compose down -v
+```
+
+## Run only FastAPI locally
+
+Python 3.13 is recommended.
 
 ```powershell
 py -3.13 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
+pip install -r requirements.txt
 python -m uvicorn backend.main:app --reload
 ```
 
-Backend API:
+By default this uses local SQLite. Set `DATABASE_URL` to use PostgreSQL.
 
-```text
-http://127.0.0.1:8000
+## Main API endpoints
+
+| Method | Endpoint | Purpose |
+|---|---|---|
+| `GET` | `/health` | service and database health |
+| `POST` | `/events` | ingest one validated sensor event |
+| `GET` | `/readings/latest` | recent transformed readings |
+| `GET` | `/alerts` | anomaly alerts |
+| `GET` | `/dead-letter` | rejected events |
+| `GET` | `/pipeline-events` | processing-stage audit trail |
+| `GET` | `/analytics/summary` | overall operational metrics |
+| `GET` | `/analytics/devices` | per-device statistics |
+| `GET` | `/analytics/energy` | hourly energy aggregation |
+| `GET` | `/analytics/anomalies` | anomaly counts and methods |
+| `POST` | `/simulation/start` | start FastAPI in-process simulator |
+| `POST` | `/simulation/pause` | pause simulator |
+| `POST` | `/simulation/inject-anomaly` | make next simulated event abnormal |
+| `POST` | `/demo/reset` | clear operational demo data |
+
+See [docs/api.md](docs/api.md) for more detail.
+
+## Testing
+
+Run:
+
+```bash
+pytest -q
 ```
 
-Swagger documentation:
+The suite covers health checks, valid ingestion, transformation output, validation failures, dead-letter persistence, unknown devices, threshold anomalies, statistical anomalies, pipeline-stage logging, analytics and reset behaviour.
 
-```text
-http://127.0.0.1:8000/docs
-```
+GitHub Actions also runs the backend test suite on pushes and pull requests.
 
-## What the demo proves
+## Case study
 
-- Continuous event-stream thinking
-- Stable device identities and realistic simulated telemetry
-- Validation before storage
-- Production-style dead-letter handling for malformed data
-- Rule-based threshold anomaly detection
-- Rolling statistical anomaly checks
-- Live alerting and pipeline observability
-- Data freshness and throughput metrics
-- A separation between recruiter-facing demo UX and server-side engineering implementation
+Read [docs/case-study.md](docs/case-study.md).
 
-## Portfolio description
+## Portfolio wording
 
-**Real-Time Data Engineering Pipeline** — Built a real-time IoT data pipeline for simulated smart-building telemetry, with schema validation, dead-letter handling, live monitoring, anomaly detection and alerting. Implemented a recruiter-friendly public demo alongside a Python/FastAPI backend architecture designed for PostgreSQL, MQTT and containerised deployment.
+**Real-Time Data Engineering Pipeline — Sep 2026**  
+Built an interactive smart-building IoT pipeline with a Python/FastAPI backend, PostgreSQL-compatible persistence, Pydantic validation, MQTT ingestion, dead-letter handling, transformation/enrichment, rule-based and statistical anomaly detection, Isolation Forest analysis, operational analytics, Docker Compose infrastructure and an instant recruiter-facing GitHub Pages demo.
 
-## Next engineering stages
+## Design decision: why the live demo is separate
 
-- MQTT / Mosquitto ingestion path
-- Worker service separation
-- PostgreSQL deployment
-- Isolation Forest comparison
-- Docker Compose end-to-end runtime
-- Hosted API integration with the GitHub Pages frontend
+A public portfolio link should open immediately and remain reliable. GitHub Pages provides that experience but only supports static browser code. Instead of pretending the static page is a deployed Python system, this project separates concerns:
+
+- **GitHub Pages** demonstrates the user experience and core pipeline concepts interactively.
+- **This repository** contains the full server-side implementation and infrastructure code.
+
+That distinction is intentional and documented.
