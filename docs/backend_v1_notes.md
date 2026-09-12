@@ -1,20 +1,25 @@
-# Architecture (v1)
+# Backend v1 Notes — Archived
 
-Sensor Simulator
-    ↓
-FastAPI POST /events
-    ↓
-Pydantic Validation ── invalid ──→ Dead-Letter Events
-    ↓ valid
-Rule Threshold Detection
-    ↓
-SQL Database
-  ├─ devices
-  ├─ sensor_readings
-  ├─ alerts
-  ├─ pipeline_events
-  └─ dead_letter_events
-    ↓
-Analytics API + Live Dashboard
+This file records the original first backend design. It has been superseded by the completed backend implementation.
 
-Planned v2: Simulator → MQTT broker → Consumer/Worker → Validation → PostgreSQL → FastAPI → Dashboard
+The current architecture now includes:
+
+- FastAPI HTTP ingestion
+- Pydantic validation
+- a real transformation/enrichment stage
+- PostgreSQL-compatible persistence
+- MQTT / Mosquitto ingestion
+- a Python consumer worker
+- dead-letter persistence
+- rule-based anomaly detection
+- rolling 3-sigma detection
+- Isolation Forest
+- analytics endpoints
+- Docker Compose
+- automated tests and CI
+
+See the current documentation:
+
+- [Architecture](architecture.md)
+- [API Reference](api.md)
+- [Case Study](case-study.md)
