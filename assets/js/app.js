@@ -99,7 +99,7 @@ function detectAnomaly(e) {
     const stats = rollingStats(e.device_id, field);
     if (!stats || stats.sd < 0.08) continue;
     const z = Math.abs((e[field] - stats.mean) / stats.sd);
-    if (z > 3.2) return { anomaly: true, method: 'Rolling 3σ', reason: `${field}=${e[field]}${unit} (${z.toFixed(1)}σ from recent mean)`, severity: 'High' };
+    if (z >= 3.0) return { anomaly: true, method: 'Rolling 3σ', reason: `${field}=${e[field]}${unit} (${z.toFixed(1)}σ from recent mean)`, severity: 'High' };
   }
   return { anomaly: false, method: null, reason: null, severity: null };
 }
