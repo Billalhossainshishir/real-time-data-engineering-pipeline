@@ -25,17 +25,18 @@
       <div class="nav-meta">
         <span class="live-dot"></span>
         <span>GitHub Pages demo</span>
+        <a href="https://github.com/Billalhossainshishir/real-time-data-engineering-pipeline" target="_blank" rel="noopener noreferrer">GitHub</a>
         <a href="#architecture">Architecture</a>
       </div>
     </nav>
 
     <header class="hero">
       <div class="hero-copy">
-        <p class="eyebrow">LIVE PORTFOLIO DEMO · NO LOGIN REQUIRED</p>
+        <p class="eyebrow">LIVE PORTFOLIO DEMO · DEMO MODE — SIMULATED IOT DATA</p>
         <h1>Real-Time Data Engineering Pipeline</h1>
         <p class="lead">A smart-building IoT simulation showing event ingestion, schema validation, transformation, anomaly detection, dead-letter handling and live operational monitoring.</p>
         <div class="stack" aria-label="Project technology stack">
-          <span>Python</span><span>FastAPI</span><span>PostgreSQL</span><span>MQTT</span><span>Docker</span><span>Chart.js</span>
+          <span>Live: JavaScript</span><span>Chart.js</span><span>Backend: Python + FastAPI</span><span>PostgreSQL</span><span>MQTT</span><span>Docker</span>
         </div>
       </div>
       <aside class="demo-card">
@@ -62,7 +63,7 @@
       <span class="arrow">→</span>
       <div class="stage"><span class="stage-icon">02</span><div><strong>Validation</strong><small>Schema & quality checks</small></div></div>
       <span class="arrow">→</span>
-      <div class="stage"><span class="stage-icon">03</span><div><strong>Transform</strong><small>Normalize event data</small></div></div>
+      <div class="stage"><span class="stage-icon">03</span><div><strong>Process</strong><small>In-memory event handling</small></div></div>
       <span class="arrow">→</span>
       <div class="stage"><span class="stage-icon">04</span><div><strong>Storage</strong><small>Reading persistence</small></div></div>
       <span class="arrow">→</span>
@@ -161,13 +162,29 @@
 
     <section id="architecture" class="architecture panel">
       <div class="architecture-copy">
-        <span class="kicker">PRODUCTION ARCHITECTURE</span>
-        <h2>How the browser demo maps to the full engineering project</h2>
-        <p>This GitHub Pages version runs the simulation and visualisation in the browser so recruiters can test it instantly. The repository also contains the FastAPI backend, validation models, database layer and automated tests used for the server-side implementation.</p>
-        <div class="architecture-note"><strong>Live demo:</strong> client-side simulation for zero-login public access. <strong>Repository:</strong> Python/FastAPI/PostgreSQL-oriented backend evidence.</div>
+        <span class="kicker">ENGINEERING BACKEND</span>
+        <h2>Instant browser demo + full backend implementation</h2>
+        <p>This GitHub Pages version runs the recruiter-facing simulation in the browser. The repository contains the completed Python/FastAPI implementation with PostgreSQL-ready persistence, MQTT/Mosquitto ingestion, a real transformation layer, three anomaly-detection approaches, Docker Compose and automated tests.</p>
+        <div class="architecture-note"><strong>Live demo:</strong> client-side simulation for zero-login public access. <strong>Backend:</strong> fully implemented in the repository, but intentionally not hosted behind this GitHub Pages site.</div>
       </div>
       <div class="architecture-flow">
         <div>IoT Simulator</div><span>→</span><div>HTTP / MQTT</div><span>→</span><div>Validation</div><span>→</span><div>Worker</div><span>→</span><div>PostgreSQL</div><span>→</span><div>FastAPI</div><span>→</span><div>Dashboard</div>
+      </div>
+    </section>
+
+    <section class="backend-proof panel">
+      <div class="backend-proof-copy">
+        <span class="kicker">FULL BACKEND IN THE REPOSITORY</span>
+        <h2>More than the browser demo</h2>
+        <p>The server-side implementation includes FastAPI ingestion, Pydantic validation, PostgreSQL-compatible SQLAlchemy models, MQTT/Mosquitto messaging, dead-letter persistence, transformation/enrichment, rule detection, rolling 3-sigma detection, Isolation Forest, analytics APIs, Docker Compose and automated tests.</p>
+      </div>
+      <div class="backend-tags" aria-label="Implemented backend capabilities">
+        <span>FastAPI</span><span>PostgreSQL</span><span>MQTT / Mosquitto</span><span>Isolation Forest</span><span>Docker Compose</span><span>pytest + CI</span>
+      </div>
+      <div class="project-links">
+        <a class="project-link primary-link" href="https://github.com/Billalhossainshishir/real-time-data-engineering-pipeline" target="_blank" rel="noopener noreferrer">View Backend on GitHub →</a>
+        <a class="project-link" href="https://github.com/Billalhossainshishir/real-time-data-engineering-pipeline/blob/main/docs/case-study.md" target="_blank" rel="noopener noreferrer">Read Case Study</a>
+        <a class="project-link" href="https://github.com/Billalhossainshishir/real-time-data-engineering-pipeline/blob/main/docs/architecture.md" target="_blank" rel="noopener noreferrer">Architecture Docs</a>
       </div>
     </section>
 
