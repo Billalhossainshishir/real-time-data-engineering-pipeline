@@ -33,6 +33,11 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=3).read()"]
+      interval: 5s
+      timeout: 4s
+      retries: 20
 
   worker:
     build: .
@@ -47,6 +52,8 @@ services:
         condition: service_healthy
       mqtt:
         condition: service_started
+      api:
+        condition: service_healthy
 
   simulator:
     build: .
@@ -58,6 +65,8 @@ services:
       MQTT_ANOMALY_EVERY: 30
     depends_on:
       mqtt:
+        condition: service_started
+      worker:
         condition: service_started
 
 volumes:
