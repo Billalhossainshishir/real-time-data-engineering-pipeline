@@ -62,4 +62,5 @@ class Simulator:
     def inject_anomaly(self):
         self.inject_next_anomaly = True
 
+
 simulator = Simulator()
