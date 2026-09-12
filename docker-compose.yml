@@ -9,19 +9,56 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pipeline -d realtime_pipeline"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  mqtt:
+    image: eclipse-mosquitto:2
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
 
   api:
-    image: python:3.12-slim
-    working_dir: /app
-    volumes:
-      - .:/app
-    command: sh -c "pip install --no-cache-dir -r requirements.txt && uvicorn backend.main:app --host 0.0.0.0 --port 8000"
+    build: .
+    command: python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000
     environment:
       DATABASE_URL: postgresql+psycopg://pipeline:pipeline@db:5432/realtime_pipeline
+      SIMULATION_INTERVAL_SECONDS: 2
     ports:
       - "8000:8000"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+
+  worker:
+    build: .
+    command: python -m worker.mqtt_consumer
+    environment:
+      DATABASE_URL: postgresql+psycopg://pipeline:pipeline@db:5432/realtime_pipeline
+      MQTT_HOST: mqtt
+      MQTT_PORT: 1883
+      MQTT_TOPIC: building/sensors/#
+    depends_on:
+      db:
+        condition: service_healthy
+      mqtt:
+        condition: service_started
+
+  simulator:
+    build: .
+    command: python -m simulator.mqtt_simulator
+    environment:
+      MQTT_HOST: mqtt
+      MQTT_PORT: 1883
+      MQTT_SIMULATION_INTERVAL_SECONDS: 2
+      MQTT_ANOMALY_EVERY: 30
+    depends_on:
+      mqtt:
+        condition: service_started
 
 volumes:
   pgdata:
