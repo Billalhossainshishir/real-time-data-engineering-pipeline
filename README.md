@@ -1,8 +1,22 @@
 # Real-Time Data Engineering Pipeline
 
+[![Tests](https://github.com/Billalhossainshishir/real-time-data-engineering-pipeline/actions/workflows/tests.yml/badge.svg)](https://github.com/Billalhossainshishir/real-time-data-engineering-pipeline/actions/workflows/tests.yml)
+
 A smart-building telemetry project that takes simulated sensor events through validation, transformation, anomaly detection and storage. The backend accepts HTTP and MQTT input and exposes stored results through a FastAPI API.
 
 Read the [reviewer guide](docs/REVIEWER_GUIDE.md) for execution modes, reproducible setup, architecture, verification steps and known limitations.
+
+## Quick recruiter view
+
+| Explore | Link |
+| --- | --- |
+| **Live demo** | https://billalhossainshishir.github.io/real-time-data-engineering-pipeline/ |
+| **Reviewer guide** | [docs/REVIEWER_GUIDE.md](docs/REVIEWER_GUIDE.md) |
+| **Architecture** | [docs/architecture.md](docs/architecture.md) |
+| **API reference** | [docs/api.md](docs/api.md) |
+| **Case study** | [docs/case-study.md](docs/case-study.md) |
+
+**60-second demo:** Start Simulation → watch room telemetry → Inject Anomaly → Inject Invalid Event → inspect alerts, dead-letter handling, throughput and data freshness.
 
 ## Live demo
 
@@ -280,3 +294,11 @@ A public portfolio link should open immediately and remain reliable. GitHub Page
 - **This repository** contains the full server-side implementation and infrastructure code.
 
 That distinction is intentional and documented.
+
+## Limitations and scope
+
+- The GitHub Pages demo is a browser simulation and is not connected to the FastAPI/PostgreSQL/MQTT backend.
+- Sensor data is simulated for portfolio demonstration; it is not production building telemetry.
+- Threshold, rolling 3-sigma and Isolation Forest detectors demonstrate different anomaly-detection approaches but are not tuned against a production-labelled dataset.
+- The backend and public demo intentionally use separate data stores; inspect the API endpoints when validating server-side ingestion.
+- Production use would require stronger security, secrets management, observability, retention policies and deployment hardening.
