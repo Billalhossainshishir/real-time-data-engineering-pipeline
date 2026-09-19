@@ -18,6 +18,11 @@ Read the [reviewer guide](docs/REVIEWER_GUIDE.md) for execution modes, reproduci
 
 **60-second demo:** Start Simulation → watch room telemetry → Inject Anomaly → Inject Invalid Event → inspect alerts, dead-letter handling, throughput and data freshness.
 
+
+## Project preview
+
+![Real-Time Data Engineering Pipeline live demo overview](screenshots/data-pipeline-overview.jpg)
+
 ## Live demo
 
 **GitHub Pages:** https://billalhossainshishir.github.io/real-time-data-engineering-pipeline/
