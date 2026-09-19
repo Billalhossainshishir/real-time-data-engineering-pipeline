@@ -169,3 +169,9 @@ GitHub Pages → hosted FastAPI → hosted PostgreSQL
 ```
 
 The current repository already contains the backend code and local Docker infrastructure required for that next deployment stage.
+
+
+
+## Current execution boundary
+
+The FastAPI root serves the same independent browser dashboard as GitHub Pages. Serving that page locally does not connect its charts to the API database. Use read endpoints or Swagger to verify stored telemetry; a backend-connected dashboard remains future work. See [the reviewer guide](REVIEWER_GUIDE.md).

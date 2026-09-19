@@ -1,6 +1,8 @@
 # Real-Time Data Engineering Pipeline
 
-A recruiter-facing portfolio project that demonstrates a complete smart-building data-engineering workflow: simulated IoT telemetry, schema validation, transformation, persistence, anomaly detection, dead-letter handling, MQTT ingestion, analytics and operational observability.
+A smart-building telemetry project that takes simulated sensor events through validation, transformation, anomaly detection and storage. The backend accepts HTTP and MQTT input and exposes stored results through a FastAPI API.
+
+Read the [reviewer guide](docs/REVIEWER_GUIDE.md) for execution modes, reproducible setup, architecture, verification steps and known limitations.
 
 ## Live demo
 
@@ -194,9 +196,11 @@ This starts:
 Open:
 
 ```text
-Dashboard / API root: http://localhost:8000
+Browser simulation:  http://localhost:8000
 Swagger API docs:     http://localhost:8000/docs
 ```
+
+The root dashboard uses independent browser data even when served by FastAPI. Inspect `/readings/latest` and `/analytics/summary` to verify backend ingestion.
 
 The MQTT simulator publishes a new sensor event approximately every two seconds and injects a demo anomaly periodically. The worker validates, transforms, detects anomalies and writes accepted events to PostgreSQL.
 
